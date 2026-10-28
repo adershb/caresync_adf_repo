@@ -1,0 +1,30 @@
+{
+	"name": "DS_SRC_BINARY_METDATA",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_SINK",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"source_folder": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ADF_DEMO"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().source_folder",
+					"type": "Expression"
+				},
+				"fileSystem": "source"
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,12 @@
+{
+	"name": "LS_ADLS_SINK",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Target ADLS for AZure SQL ingestion",
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://adls0111.dfs.core.windows.net/"
+		}
+	}
+}
