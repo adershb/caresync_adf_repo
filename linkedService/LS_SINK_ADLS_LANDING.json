@@ -1,0 +1,10 @@
+{
+	"name": "LS_SINK_ADLS_LANDING",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://adls0111.dfs.core.windows.net/"
+		}
+	}
+}
