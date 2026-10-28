@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"value": "adf-0111"
+		},
+		"LS_ADLS_SINK_properties_typeProperties_url": {
+			"value": "https://adls0111.dfs.core.windows.net/"
+		},
+		"LS_AKV_SQLDB_properties_typeProperties_baseUrl": {
+			"value": "https://realmofisha-keyvault.vault.azure.net/"
+		},
+		"LS_AZURE_SQL_properties_typeProperties_server": {
+			"value": "demosqlsrv00111.database.windows.net"
+		},
+		"LS_AZURE_SQL_properties_typeProperties_database": {
+			"value": "demosqldb"
+		},
+		"LS_AZURE_SQL_properties_typeProperties_userName": {
+			"value": "realmofisha"
+		}
+	}
+}
