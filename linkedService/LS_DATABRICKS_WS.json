@@ -13,7 +13,8 @@
 				},
 				"secretName": "Azure-Databricks-token",
 				"secretVersion": "0639609fdbaa40c2879544f2e45937bf"
-			}
+			},
+			"existingClusterId": "1029-173658-91sfteaj"
 		}
 	}
 }
