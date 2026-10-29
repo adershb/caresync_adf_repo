@@ -51,20 +51,97 @@
 					"isSequential": false,
 					"activities": [
 						{
-							"name": "Set variable1",
-							"type": "SetVariable",
-							"dependsOn": [],
+							"name": "Insgest_from_source_silver",
+							"type": "ExecutePipeline",
+							"dependsOn": [
+								{
+									"activity": "INSERT_INPROGRESS_STATUS",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
-								"secureOutput": false,
 								"secureInput": false
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"variableName": "test",
-								"value": {
-									"value": "@item().table_id",
-									"type": "Expression"
+								"pipeline": {
+									"referenceName": "PL_PGSQL_ADLS_SILVER_INNER",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"table_id": {
+										"value": "@item().table_id",
+										"type": "Expression"
+									}
 								}
+							}
+						},
+						{
+							"name": "INSERT_INPROGRESS_STATUS",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 2,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "LS_AZURE_SQL_METADATA",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "insert into ctrl.audit_log(adf_run_id,table_id,stage,status,start_time)\nVALUES('a1',@{item().table_id},'SOURCE_TO_SILVER','IN_PROGRESS',SYSUTCDATETIME());",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "UPDATE_FAILED_STATUS",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "Insgest_from_source_silver",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 2,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "LS_AZURE_SQL_METADATA",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "insert into ctrl.audit_log(adf_run_id,table_id,stage,status,start_time)\nVALUES('a1',@{item().table_id},'SOURCE_TO_SILVER','IN_PROGRESS',SYSUTCDATETIME());",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
 							}
 						}
 					]
