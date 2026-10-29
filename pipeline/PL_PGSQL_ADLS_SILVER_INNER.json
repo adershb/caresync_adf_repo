@@ -1,0 +1,217 @@
+{
+	"name": "PL_PGSQL_ADLS_SILVER_INNER",
+	"properties": {
+		"activities": [
+			{
+				"name": "READ_TABLE_DETAILS",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "select * from ctrl.table_config where table_id=@{pipeline().parameters.table_id};",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_AZURE_SQL_SOURCE",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "set_start_time",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "start_time",
+					"value": {
+						"value": "@formatDateTime(utcNow(),'yyyy-MM-dd_hh:mm:ss')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SOURCE_TO_LANDING_INGESTION",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "set_start_time",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "READ_TABLE_DETAILS",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "PostgreSqlV2Source",
+						"query": {
+							"value": "select * from PUBLIC.@{activity('READ_TABLE_DETAILS').output.firstRow.source_table_name}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00"
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "PreserveHierarchy"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DS_POSTGRESQL",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DS_ADLS_PARQUET",
+						"type": "DatasetReference",
+						"parameters": {
+							"container": "caresync",
+							"folder": {
+								"value": "@concat(activity('READ_TABLE_DETAILS').output.firstRow.source_system,\n'/',\nactivity('READ_TABLE_DETAILS').output.firstRow.source_table_name,\n'/',\nvariables('start_time')\n)",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			},
+			{
+				"name": "landing_to_bronze",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "SOURCE_TO_LANDING_INGESTION",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/caresync-repo/caresync-adb-repo/caresync_landing_to_bronze",
+					"baseParameters": {
+						"source_system": {
+							"value": "@activity('READ_TABLE_DETAILS').output.firstRow.source_system",
+							"type": "Expression"
+						},
+						"table_name": {
+							"value": "@activity('READ_TABLE_DETAILS').output.firstRow.bronze_table_name",
+							"type": "Expression"
+						},
+						"landing_timestamp": {
+							"value": "@variables('start_time')",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_DATABRICKS_WS",
+					"type": "LinkedServiceReference"
+				}
+			},
+			{
+				"name": "bronze_to_silver",
+				"type": "DatabricksNotebook",
+				"dependsOn": [
+					{
+						"activity": "landing_to_bronze",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebookPath": "/caresync-repo/caresync-adb-repo/caresync_bronze_silver",
+					"baseParameters": {
+						"landing_timestamp": {
+							"value": "@variables('start_time')",
+							"type": "Expression"
+						},
+						"table_name": {
+							"value": "@activity('READ_TABLE_DETAILS').output.firstRow.silver_table_name",
+							"type": "Expression"
+						}
+					}
+				},
+				"linkedServiceName": {
+					"referenceName": "LS_DATABRICKS_WS",
+					"type": "LinkedServiceReference"
+				}
+			}
+		],
+		"parameters": {
+			"table_id": {
+				"type": "int",
+				"defaultValue": 1
+			}
+		},
+		"variables": {
+			"start_time": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
