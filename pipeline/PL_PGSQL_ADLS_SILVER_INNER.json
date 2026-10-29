@@ -199,12 +199,52 @@
 					"referenceName": "LS_DATABRICKS_WS",
 					"type": "LinkedServiceReference"
 				}
+			},
+			{
+				"name": "UPDATE_SUCCESS_",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "bronze_to_silver",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "LS_AZURE_SQL_METADATA",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "update ctrl.audit_log set status='SUCCESS', end_time=SYSUTCDATETIME(),records_written=@{activity('bronze_to_silver').output.runoutput} where adf_run_id='@{pipeline().parameters.adf_run_id}' and table_id=@{pipeline().parameters.table_id}",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
 			}
 		],
 		"parameters": {
 			"table_id": {
 				"type": "int",
 				"defaultValue": 1
+			},
+			"adf_run_id": {
+				"type": "string",
+				"defaultValue": "a1"
 			}
 		},
 		"variables": {
