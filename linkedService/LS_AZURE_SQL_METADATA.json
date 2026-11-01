@@ -1,0 +1,23 @@
+{
+	"name": "LS_AZURE_SQL_METADATA",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "demosqlsrv00111.database.windows.net",
+			"database": "demosqldb",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "realmofisha",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_AKV_SQL_METADATA",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "METDATA-SQLDB-PASSWORD"
+			}
+		}
+	}
+}
