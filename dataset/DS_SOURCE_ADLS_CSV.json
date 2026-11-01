@@ -9,6 +9,9 @@
 			"folder_name": {
 				"type": "string",
 				"defaultValue": "source"
+			},
+			"container_name": {
+				"type": "string"
 			}
 		},
 		"annotations": [],
@@ -20,7 +23,10 @@
 					"value": "@dataset().folder_name",
 					"type": "Expression"
 				},
-				"fileSystem": "caresync"
+				"fileSystem": {
+					"value": "@dataset().container_name",
+					"type": "Expression"
+				}
 			}
 		}
 	}
