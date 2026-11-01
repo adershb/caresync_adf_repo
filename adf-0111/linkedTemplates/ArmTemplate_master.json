@@ -53,7 +53,7 @@
 		},
 		"LS_DATABRICKS_WS_properties_typeProperties_existingClusterId": {
 			"type": "string",
-			"defaultValue": "1029-173658-91sfteaj"
+			"defaultValue": "1101-171702-j3i6hgnv"
 		},
 		"LS_POSTGRESQL_properties_typeProperties_server": {
 			"type": "string",
