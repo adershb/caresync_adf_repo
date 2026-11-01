@@ -1,0 +1,168 @@
+{
+	"name": "PL_MULTI_TABLE_INGESTION",
+	"properties": {
+		"description": "Multiple table ingestion using for each",
+		"activities": [
+			{
+				"name": "Ingest_all_tables",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "read_config_table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('read_config_table').output.value",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "PL_AZURE_SQL_COPY",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"table_name": {
+										"value": "@item().table_name",
+										"type": "Expression"
+									}
+								}
+							}
+						},
+						{
+							"name": "store table status success",
+							"type": "AppendVariable",
+							"dependsOn": [
+								{
+									"activity": "Execute Pipeline1",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "Table_Status",
+								"value": {
+									"value": "@{item().table_name} - Success",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "store table status failure",
+							"type": "AppendVariable",
+							"dependsOn": [
+								{
+									"activity": "Execute Pipeline1",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "Table_Status",
+								"value": {
+									"value": "@{item().table_name} - Failure",
+									"type": "Expression"
+								}
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "read_config_table",
+				"description": "read the config table to get the list of tables for ingestion",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select table_name from metadata.table_list;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_AZURE_SQL",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_name": "dbo",
+							"table_name": "cutsomers"
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "send concolidated email",
+				"description": "send consolidated email for ingestion status of all tables ",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "Ingest_all_tables",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "PL_EMAIL_DEMO_MULTI_TABLE",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"email_reciepient": {
+							"value": "@pipeline().globalParameters.reciepient_email",
+							"type": "Expression"
+						},
+						"table_status": {
+							"value": "@variables('Table_Status')",
+							"type": "Expression"
+						}
+					}
+				}
+			}
+		],
+		"variables": {
+			"Table_Status": {
+				"type": "Array"
+			}
+		},
+		"folder": {
+			"name": "ADF_DEMO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-10-12T20:45:41Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

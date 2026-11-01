@@ -1,0 +1,21 @@
+{
+	"name": "adf-0111",
+	"properties": {
+		"globalParameters": {
+			"reciepient_email": {
+				"type": "string",
+				"value": "realmofisha@gmail.com"
+			}
+		},
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "d2573720-0bd9-4bfd-935c-5beac7cab0c2",
+		"tenantId": "5f93ce46-9ed5-4126-aeab-d73017def873"
+	}
+}

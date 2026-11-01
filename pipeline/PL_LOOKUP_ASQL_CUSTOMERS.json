@@ -1,0 +1,44 @@
+{
+	"name": "PL_LOOKUP_ASQL_CUSTOMERS",
+	"properties": {
+		"description": "lookup azure sql customer table",
+		"activities": [
+			{
+				"name": "LOOKUPUP_CUSTOMERS",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "select * from dbo.customers where region in ('south','north');",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "DS_AZURE_SQL",
+						"type": "DatasetReference",
+						"parameters": {
+							"schema_name": "dbo",
+							"table_name": "customers"
+						}
+					},
+					"firstRowOnly": false
+				}
+			}
+		],
+		"folder": {
+			"name": "ADF_DEMO"
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-10-12T20:45:40Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}

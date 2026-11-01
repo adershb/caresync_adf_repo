@@ -1,0 +1,36 @@
+{
+	"name": "DS_SINK_BINARY",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_ADLS_SINK",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"sink_container": {
+				"type": "string"
+			},
+			"sink_folder": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ADF_DEMO"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@dataset().sink_folder",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().sink_container",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

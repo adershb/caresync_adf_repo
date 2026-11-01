@@ -1,0 +1,25 @@
+{
+	"name": "LS_AZURE_SQL",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Linked Service for Azure SQL ",
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "demosqlsrv00111.database.windows.net",
+			"database": "demosqldb",
+			"encrypt": "mandatory",
+			"trustServerCertificate": true,
+			"authenticationType": "SQL",
+			"userName": "realmofisha",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "LS_AKV_SQLDB",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "SQLDB-secret"
+			}
+		}
+	}
+}
