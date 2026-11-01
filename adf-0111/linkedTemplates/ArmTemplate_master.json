@@ -11,7 +11,19 @@
 			"type": "string",
 			"defaultValue": "https://adls0111.dfs.core.windows.net/"
 		},
+		"LS_AKV_DATABRICKS_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://realmofisha-keyvault.vault.azure.net/"
+		},
+		"LS_AKV_NEONPOSTGRES_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://realmofisha-keyvault.vault.azure.net/"
+		},
 		"LS_AKV_SQLDB_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://realmofisha-keyvault.vault.azure.net/"
+		},
+		"LS_AKV_SQL_METADATA_properties_typeProperties_baseUrl": {
 			"type": "string",
 			"defaultValue": "https://realmofisha-keyvault.vault.azure.net/"
 		},
@@ -26,6 +38,38 @@
 		"LS_AZURE_SQL_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "realmofisha"
+		},
+		"LS_AZURE_SQL_METADATA_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "demosqlsrv00111.database.windows.net"
+		},
+		"LS_AZURE_SQL_METADATA_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "demosqldb"
+		},
+		"LS_AZURE_SQL_METADATA_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "realmofisha"
+		},
+		"LS_DATABRICKS_WS_properties_typeProperties_existingClusterId": {
+			"type": "string",
+			"defaultValue": "1029-173658-91sfteaj"
+		},
+		"LS_POSTGRESQL_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "ep-delicate-haze-b30ik1q6-pooler.c-4.ap-southeast-1.aws.neon.tech"
+		},
+		"LS_POSTGRESQL_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "neondb"
+		},
+		"LS_POSTGRESQL_properties_typeProperties_username": {
+			"type": "string",
+			"defaultValue": "neondb_owner"
+		},
+		"LS_SINK_ADLS_LANDING_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adls0111.dfs.core.windows.net/"
 		},
 		"containerUri": {
 			"type": "string",
@@ -57,8 +101,20 @@
 					"LS_ADLS_SINK_properties_typeProperties_url": {
 						"value": "[parameters('LS_ADLS_SINK_properties_typeProperties_url')]"
 					},
+					"LS_AKV_DATABRICKS_properties_typeProperties_baseUrl": {
+						"value": "[parameters('LS_AKV_DATABRICKS_properties_typeProperties_baseUrl')]"
+					},
+					"LS_AKV_NEONPOSTGRES_properties_typeProperties_baseUrl": {
+						"value": "[parameters('LS_AKV_NEONPOSTGRES_properties_typeProperties_baseUrl')]"
+					},
 					"LS_AKV_SQLDB_properties_typeProperties_baseUrl": {
 						"value": "[parameters('LS_AKV_SQLDB_properties_typeProperties_baseUrl')]"
+					},
+					"LS_AKV_SQL_METADATA_properties_typeProperties_baseUrl": {
+						"value": "[parameters('LS_AKV_SQL_METADATA_properties_typeProperties_baseUrl')]"
+					},
+					"LS_SINK_ADLS_LANDING_properties_typeProperties_url": {
+						"value": "[parameters('LS_SINK_ADLS_LANDING_properties_typeProperties_url')]"
 					},
 					"LS_AZURE_SQL_properties_typeProperties_server": {
 						"value": "[parameters('LS_AZURE_SQL_properties_typeProperties_server')]"
@@ -68,10 +124,51 @@
 					},
 					"LS_AZURE_SQL_properties_typeProperties_userName": {
 						"value": "[parameters('LS_AZURE_SQL_properties_typeProperties_userName')]"
+					},
+					"LS_AZURE_SQL_METADATA_properties_typeProperties_server": {
+						"value": "[parameters('LS_AZURE_SQL_METADATA_properties_typeProperties_server')]"
+					},
+					"LS_AZURE_SQL_METADATA_properties_typeProperties_database": {
+						"value": "[parameters('LS_AZURE_SQL_METADATA_properties_typeProperties_database')]"
+					},
+					"LS_AZURE_SQL_METADATA_properties_typeProperties_userName": {
+						"value": "[parameters('LS_AZURE_SQL_METADATA_properties_typeProperties_userName')]"
+					},
+					"LS_DATABRICKS_WS_properties_typeProperties_existingClusterId": {
+						"value": "[parameters('LS_DATABRICKS_WS_properties_typeProperties_existingClusterId')]"
+					},
+					"LS_POSTGRESQL_properties_typeProperties_server": {
+						"value": "[parameters('LS_POSTGRESQL_properties_typeProperties_server')]"
+					},
+					"LS_POSTGRESQL_properties_typeProperties_database": {
+						"value": "[parameters('LS_POSTGRESQL_properties_typeProperties_database')]"
+					},
+					"LS_POSTGRESQL_properties_typeProperties_username": {
+						"value": "[parameters('LS_POSTGRESQL_properties_typeProperties_username')]"
 					}
 				}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "adf-0111_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-0111_ArmTemplate_0')]"
+			]
 		}
 	]
 }
